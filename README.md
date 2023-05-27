@@ -14,38 +14,38 @@ Third-party libraries:
 Go 1.16 or higher  
 Redis server
 ## Setup
-1. Clone the repository:
+### 1. Clone the repository:
 ```
 $ git clone https://github.com/simepavlic/tracking-service.git
 ```
-2. Install the project dependencies:
+### 2. Install the project dependencies:
 ```
 $ go mod tidy
 ```
-3. Configure tracking service port in cmd/tracking-service/tracking-service.go file:
+### 3. Configure tracking service port in cmd/tracking-service/tracking-service.go file:
 ```
 const servicePort = "8080"
 ```
-4. Configure the Redis connection in the cmd/global/global.go file:
+### 4. Configure the Redis connection in the cmd/global/global.go file:
 ```
 // Redis configuration
 const RedisAddress = "localhost:6379"
 const RedisChannel = "tracking-events"
 ```
-5. Start the Tracking Service:
+### 5. Start the Tracking Service:
 ```
 $ go run cmd/tracking-service/tracking-service.go
 ```
-6. Start the CLI Client:
+### 6. Start the CLI Client:
 ```
 $ go run cmd/cli-client/client.go
 ```
 ## Usage
-1. Sending Events:
+### 1. Sending Events:
 
 To send an event, make a GET request to the endpoint localhost:{servicePort}/{accountId}?data={data}. Replace {servicePort} with tracking service port, {accountId} with the account ID and {data} with the data for the event.  
 
-2. CLI Client:
+### 2. CLI Client:
 
 The CLI client will display the events in real-time as they are received from the Pub/Sub System.
 
@@ -55,7 +55,7 @@ $ go run cmd/cli-client/client.go <accountID1> <accountID2> ...
 ```
 Only events with the specified account IDs will be displayed.
 
-3. Termination:
+### 3. Termination:
 
 Press Ctrl+C to stop the Tracking Service or CLI Client.
 ## Testing
