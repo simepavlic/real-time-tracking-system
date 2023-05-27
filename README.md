@@ -15,8 +15,9 @@ Go 1.16 or higher
 Redis server
 ## Setup
 1. Clone the repository:
-git clone https://github.com/simepavlic/tracking-service.git
-
+```
+$ git clone https://github.com/simepavlic/tracking-service.git
+```
 2. Install the project dependencies:
 ```
 $ go mod tidy
