@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,7 +22,7 @@ func Test_populateAccounts(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name: "basic test",
+			name: "successful test",
 			accounts: []Account{
 				{
 					ID:       "1",
@@ -69,21 +70,46 @@ func TestValidateAccount(t *testing.T) {
 		Addr: server.Addr(),
 	})
 
-	populateAccounts(accounts)
-
-	// Test an active account
-	isActive, err := validateAccount("1")
+	err := populateAccounts(accounts)
 	assert.NoError(t, err)
-	assert.True(t, isActive)
 
-	// Test an inactive account
-	isActive, err = validateAccount("2")
-	assert.NoError(t, err)
-	assert.False(t, isActive)
+	tests := []struct {
+		name      string
+		accountID string
+		active    bool
+		wantErr   bool
+	}{
+		{
+			name:      "active account",
+			accountID: "1",
+			active:    true,
+			wantErr:   false,
+		},
+		{
+			name:      "inactive account",
+			accountID: "2",
+			active:    false,
+			wantErr:   false,
+		},
+		{
+			name:      "invalid account",
+			accountID: "3",
+			active:    false,
+			wantErr:   true,
+		},
+	}
 
-	// Test an invalid account
-	isActive, err = validateAccount("3")
-	assert.Error(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			isActive, err := validateAccount(tt.accountID)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.active, isActive)
+		})
+	}
 }
 
 func TestEventHandler(t *testing.T) {
@@ -97,21 +123,56 @@ func TestEventHandler(t *testing.T) {
 			Name:     "Acc1",
 			IsActive: true,
 		},
+		{
+			ID:       "2",
+			Name:     "Acc2",
+			IsActive: false,
+		},
 	}
 	err := populateAccounts(accounts)
 	assert.NoError(t, err)
 
-	// Create a mock HTTP request with a valid account ID and data
-	req, err := http.NewRequest("GET", "/1?data=test", nil)
-	assert.NoError(t, err)
+	tests := []struct {
+		name       string
+		accountID  string
+		httpStatus int
+		body       string
+	}{
+		{
+			name:       "active account",
+			accountID:  "1",
+			httpStatus: http.StatusOK,
+			body:       "Event processed successfully",
+		},
+		{
+			name:       "inactive account",
+			accountID:  "2",
+			httpStatus: http.StatusBadRequest,
+			body:       "Account is not active\n",
+		},
+		{
+			name:       "invalid account",
+			accountID:  "3",
+			httpStatus: http.StatusInternalServerError,
+			body:       "Failed to validate account\n",
+		},
+	}
 
-	// Create a response recorder for capturing the response
-	rr := httptest.NewRecorder()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a mock HTTP request with a valid account ID and data
+			req, err := http.NewRequest("GET", fmt.Sprintf("/%s?data=test", tt.accountID), nil)
+			assert.NoError(t, err)
 
-	// Call the eventHandler function
-	eventHandler(rr, req)
+			// Create a response recorder for capturing the response
+			rr := httptest.NewRecorder()
 
-	// Check the response status code
-	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Equal(t, "Event processed successfully", rr.Body.String())
+			// Call the eventHandler function
+			eventHandler(rr, req)
+
+			// Check the response status code
+			assert.Equal(t, tt.httpStatus, rr.Code)
+			assert.Equal(t, tt.body, rr.Body.String())
+		})
+	}
 }
