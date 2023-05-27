@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/real-time-tracking-system/cmd/global"
+
 	"github.com/go-redis/redis"
 )
-
-var filterAccountIDs = []string{"1", "3"}
 
 type EventPayload struct {
 	AccountID string `json:"accountId"`
@@ -32,8 +32,11 @@ func contains(id string, array []string) bool {
 }
 
 func main() {
+
+	filterAccountIDs := os.Args[1:]
+
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     global.RedisAddress,
 		Password: "",
 		DB:       0,
 	})
@@ -44,7 +47,7 @@ func main() {
 		log.Fatal("Failed to connect to Redis:", err)
 	}
 
-	pubsub := redisClient.Subscribe("tracking-events")
+	pubsub := redisClient.Subscribe(global.RedisChannel)
 	defer pubsub.Close()
 
 	// Wait for confirmation that subscription is created before subscribing to signals

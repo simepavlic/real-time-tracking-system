@@ -7,8 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/real-time-tracking-system/cmd/global"
+
 	"github.com/go-redis/redis"
 )
+
+const servicePort = ":8080"
 
 type Account struct {
 	ID       string `json:"accountId"`
@@ -22,7 +26,7 @@ var (
 
 func initRedisClient() {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     global.RedisAddress,
 		Password: "",
 		DB:       0,
 	})
@@ -82,7 +86,7 @@ func propagateEvent(payload EventPayload) {
 	}
 
 	// Publish the JSON payload to Redis Pub/Sub channel
-	err = redisClient.Publish("tracking-events", jsonPayload).Err()
+	err = redisClient.Publish(global.RedisChannel, jsonPayload).Err()
 	if err != nil {
 		log.Println("Failed to publish event to Redis Pub/Sub:", err)
 		return
@@ -143,6 +147,6 @@ func main() {
 	http.HandleFunc("/", eventHandler)
 
 	// Start the server on port 8080
-	fmt.Println("Tracking service started. Listening on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Printf("Tracking service started. Listening on port %s...", servicePort)
+	log.Fatal(http.ListenAndServe(servicePort, nil))
 }
