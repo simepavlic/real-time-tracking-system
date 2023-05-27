@@ -9,7 +9,7 @@ CLI Client: Fault-tolerant CLI client that subscribes to the Pub/Sub System and 
 Go programming language  
 Redis for pub/sub messaging  
 Third-party libraries:  
-go-redis/redis: Redis client library for Go
+[go-redis/redis](https://github.com/redis/go-redis): Redis client library for Go
 ## Prerequisites
 Go 1.16 or higher  
 Redis server
