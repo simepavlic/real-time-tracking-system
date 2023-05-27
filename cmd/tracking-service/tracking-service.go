@@ -12,7 +12,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const servicePort = ":8080"
+const servicePort = "8080"
 
 type Account struct {
 	ID       string `json:"accountId"`
@@ -148,5 +148,5 @@ func main() {
 
 	// Start the server on port 8080
 	fmt.Printf("Tracking service started. Listening on port %s...", servicePort)
-	log.Fatal(http.ListenAndServe(servicePort, nil))
+	log.Fatal(http.ListenAndServe(":"+servicePort, nil))
 }

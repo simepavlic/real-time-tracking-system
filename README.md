@@ -6,12 +6,12 @@ Tracking Service: Exposes an endpoint to receive events and validates the accoun
 Pub/Sub System: Accepts events from the Tracking Service and propagates them to subscribed services over the network.  
 CLI Client: Fault-tolerant CLI client that subscribes to the Pub/Sub System and displays messages as they arrive. Supports filtering on multiple account IDs.
 ## Technologies Used
-Go programming language
-Redis for pub/sub messaging
-Third-party libraries:
+Go programming language  
+Redis for pub/sub messaging  
+Third-party libraries:  
 go-redis/redis: Redis client library for Go
 ## Prerequisites
-Go 1.16 or higher
+Go 1.16 or higher  
 Redis server
 ## Setup
 1. Clone the repository:
@@ -23,7 +23,7 @@ $ go mod tidy
 ```
 3. Configure tracking service port in cmd/tracking-service/tracking-service.go file:
 ```
-const servicePort = ":8080"
+const servicePort = "8080"
 ```
 4. Configure the Redis connection in the cmd/global/global.go file:
 ```
@@ -42,7 +42,7 @@ $ go run cmd/cli-client/client.go
 ## Usage
 1. Sending Events:
 
-To send an event, make a GET request to the endpoint localhost:8080/<accountId>?data=<data>. Replace <accountId> with the account ID and <data> with the data for the event.  
+To send an event, make a GET request to the endpoint localhost:{servicePort}/{accountId}?data={data}. Replace {servicePort} with tracking service port, {accountId} with the account ID and {data} with the data for the event.  
 
 2. CLI Client:
 
